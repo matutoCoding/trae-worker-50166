@@ -44,7 +44,7 @@ const SchedulePage: React.FC = () => {
       list = list.filter(s => s.date === selectedDate);
     }
     return list.sort((a, b) => a.startTime.localeCompare(b.startTime));
-  }, [filter, selectedDate]);
+  }, [filter, selectedDate, schedules]);
 
   const stats = useMemo(() => {
     const todaySchedules = schedules.filter(s => s.date === today.format('YYYY-MM-DD'));

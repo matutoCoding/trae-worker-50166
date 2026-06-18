@@ -20,7 +20,7 @@ const ScheduleDetailPage: React.FC = () => {
 
   const schedule = useMemo<Schedule | undefined>(() => {
     return schedules.find(s => s.id === id);
-  }, [id]);
+  }, [id, schedules]);
 
   const getStatusType = (status: ScheduleStatus): 'info' | 'primary' | 'success' | 'default' => {
     const map: Record<ScheduleStatus, 'info' | 'primary' | 'success' | 'default'> = {

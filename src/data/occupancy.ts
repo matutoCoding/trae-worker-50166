@@ -163,4 +163,5 @@ const rawOccupancies: Occupancy[] = [
   }
 ];
 
+export const rawOccupanciesData: Occupancy[] = [...rawOccupancies];
 export const mockOccupancies: Occupancy[] = mergeOccupancies(rawOccupancies);

@@ -11,7 +11,7 @@ import type {
 } from '@/types';
 import { mockSchedules } from '@/data/schedule';
 import { mockStations } from '@/data/station';
-import { mockOccupancies } from '@/data/occupancy';
+import { mockOccupancies, rawOccupanciesData } from '@/data/occupancy';
 import { mockBatches } from '@/data/batch';
 import { mockFlowRecords, mockRecalls, mockHospitals } from '@/data/recall';
 import {
@@ -23,7 +23,7 @@ const STORE_CHANGE = 'store_change';
 
 let _schedules: Schedule[] = [...mockSchedules];
 let _stations: Station[] = [...mockStations];
-let _rawOccupancies: Occupancy[] = mockOccupancies.filter(o => !o.merged);
+let _rawOccupancies: Occupancy[] = [...rawOccupanciesData];
 let _batches: Batch[] = [...mockBatches];
 let _recalls: Recall[] = [...mockRecalls];
 let _flowRecords: FlowRecord[] = [...mockFlowRecords];
@@ -130,9 +130,12 @@ export function toggleStationStatus(id: string) {
   notify();
 }
 
-export function cancelOccupancySegment(mergedOcc: Occupancy) {
-  const cancelStart = dayjs(`${mergedOcc.date} ${mergedOcc.startTime}`);
-  const cancelEnd = dayjs(`${mergedOcc.date} ${mergedOcc.endTime}`);
+export function splitOccupancySegment(mergedOcc: Occupancy, splitTime: string) {
+  const splitDT = dayjs(`${mergedOcc.date} ${splitTime}`);
+  const rangeStart = dayjs(`${mergedOcc.date} ${mergedOcc.startTime}`);
+  const rangeEnd = dayjs(`${mergedOcc.date} ${mergedOcc.endTime}`);
+
+  if (!splitDT.isAfter(rangeStart) || !splitDT.isBefore(rangeEnd)) return;
 
   const result: Occupancy[] = [];
 
@@ -150,20 +153,20 @@ export function cancelOccupancySegment(mergedOcc: Occupancy) {
     const segStart = dayjs(`${o.date} ${o.startTime}`);
     const segEnd = dayjs(`${o.date} ${o.endTime}`);
 
-    if (!segEnd.isAfter(cancelStart) || !segStart.isBefore(cancelEnd)) {
+    if (!segEnd.isAfter(rangeStart) || !segStart.isBefore(rangeEnd)) {
       result.push(o);
-    } else if (!segStart.isBefore(cancelStart) && !segEnd.isAfter(cancelEnd)) {
-      result.push({ ...o, status: 'cancelled' as OccupancyStatus });
-    } else if (segStart.isBefore(cancelStart) && segEnd.isAfter(cancelEnd)) {
-      result.push(
-        { ...o, endTime: mergedOcc.startTime, merged: false, id: generateId(), createdAt: new Date().toISOString() },
-        { ...o, status: 'cancelled' as OccupancyStatus },
-        { ...o, startTime: mergedOcc.endTime, merged: false, id: generateId(), createdAt: new Date().toISOString() }
-      );
-    } else if (segStart.isBefore(cancelStart)) {
-      result.push({ ...o, endTime: mergedOcc.startTime, merged: false });
+      continue;
+    }
+
+    if (!segEnd.isAfter(splitDT)) {
+      result.push(o);
+    } else if (!segStart.isBefore(splitDT)) {
+      result.push(o);
     } else {
-      result.push({ ...o, startTime: mergedOcc.endTime, merged: false });
+      result.push(
+        { ...o, endTime: splitTime, merged: false, id: generateId(), createdAt: new Date().toISOString() },
+        { ...o, startTime: splitTime, merged: false, id: generateId(), createdAt: new Date().toISOString() }
+      );
     }
   }
 
@@ -171,38 +174,50 @@ export function cancelOccupancySegment(mergedOcc: Occupancy) {
   notify();
 }
 
-export function splitOccupancySegment(id: string, splitTime: string) {
-  const occ = _rawOccupancies.find(o => o.id === id);
-  if (!occ) return;
+export function cancelOccupancyTimeRange(mergedOcc: Occupancy, cancelStart: string, cancelEnd: string) {
+  const cs = dayjs(`${mergedOcc.date} ${cancelStart}`);
+  const ce = dayjs(`${mergedOcc.date} ${cancelEnd}`);
+  if (!cs.isBefore(ce)) return;
 
-  const splitDT = dayjs(`${occ.date} ${splitTime}`);
-  const startDT = dayjs(`${occ.date} ${occ.startTime}`);
-  const endDT = dayjs(`${occ.date} ${occ.endTime}`);
+  const result: Occupancy[] = [];
 
-  if (!splitDT.isAfter(startDT) || !splitDT.isBefore(endDT)) return;
+  for (const o of _rawOccupancies) {
+    if (
+      o.stationId !== mergedOcc.stationId ||
+      o.date !== mergedOcc.date ||
+      o.groupName !== mergedOcc.groupName ||
+      o.status !== 'occupied'
+    ) {
+      result.push(o);
+      continue;
+    }
 
-  const before: Occupancy = {
-    ...occ,
-    id: generateId(),
-    startTime: occ.startTime,
-    endTime: splitTime,
-    merged: false,
-    splitFrom: occ.id,
-    createdAt: new Date().toISOString()
-  };
-  const after: Occupancy = {
-    ...occ,
-    id: generateId(),
-    startTime: splitTime,
-    endTime: occ.endTime,
-    merged: false,
-    splitFrom: occ.id,
-    createdAt: new Date().toISOString()
-  };
+    const segStart = dayjs(`${o.date} ${o.startTime}`);
+    const segEnd = dayjs(`${o.date} ${o.endTime}`);
 
-  _rawOccupancies = _rawOccupancies.map(o => o.id === id ? before : o);
-  _rawOccupancies = [..._rawOccupancies, after];
+    if (!segEnd.isAfter(cs) || !segStart.isBefore(ce)) {
+      result.push(o);
+    } else if (!segStart.isBefore(cs) && !segEnd.isAfter(ce)) {
+      result.push({ ...o, status: 'cancelled' as OccupancyStatus });
+    } else if (segStart.isBefore(cs) && segEnd.isAfter(ce)) {
+      result.push(
+        { ...o, endTime: cancelStart, merged: false, id: generateId(), createdAt: new Date().toISOString() },
+        { ...o, status: 'cancelled' as OccupancyStatus },
+        { ...o, startTime: cancelEnd, merged: false, id: generateId(), createdAt: new Date().toISOString() }
+      );
+    } else if (segStart.isBefore(cs)) {
+      result.push({ ...o, endTime: cancelStart, merged: false });
+    } else {
+      result.push({ ...o, startTime: cancelEnd, merged: false });
+    }
+  }
+
+  _rawOccupancies = result;
   notify();
+}
+
+export function cancelOccupancySegment(mergedOcc: Occupancy) {
+  cancelOccupancyTimeRange(mergedOcc, mergedOcc.startTime, mergedOcc.endTime);
 }
 
 export function addBatch(data: {

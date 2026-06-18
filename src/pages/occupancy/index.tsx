@@ -8,7 +8,7 @@ import EmptyState from '@/components/EmptyState';
 import StatusTag from '@/components/StatusTag';
 import type { Occupancy } from '@/types';
 import { formatDate, getOccupancyStatusText } from '@/utils';
-import { useStoreData, cancelOccupancySegment, splitOccupancySegment } from '@/store';
+import { useStoreData, cancelOccupancySegment, cancelOccupancyTimeRange, splitOccupancySegment } from '@/store';
 import styles from './index.module.scss';
 
 const OccupancyPage: React.FC = () => {
@@ -58,13 +58,13 @@ const OccupancyPage: React.FC = () => {
   const handleSplit = (occupancy: Occupancy) => {
     Taro.showModal({
       title: '拆分占用',
-      content: `确定要拆分「${occupancy.groupName}」的时段占用吗？\n将在中间位置拆分成两段。`,
+      content: `确定要拆分「${occupancy.groupName}」的时段占用吗？\n将在中间位置拆分成两段。\n${occupancy.startTime} - ${occupancy.endTime}`,
       success: (res) => {
         if (res.confirm) {
           const start = dayjs(`${occupancy.date} ${occupancy.startTime}`);
           const end = dayjs(`${occupancy.date} ${occupancy.endTime}`);
           const midTime = start.add(end.diff(start, 'minute') / 2, 'minute').format('HH:mm');
-          splitOccupancySegment(occupancy.id, midTime);
+          splitOccupancySegment(occupancy, midTime);
           Taro.showToast({ title: '拆分成功', icon: 'success' });
         }
       }
@@ -72,14 +72,61 @@ const OccupancyPage: React.FC = () => {
   };
 
   const handleCancel = (occupancy: Occupancy) => {
+    Taro.showActionSheet({
+      itemList: occupancy.merged ? ['取消整段占用', '取消指定时段'] : ['取消整段占用'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          Taro.showModal({
+            title: '取消占用',
+            content: `确定要取消「${occupancy.groupName}」在 ${occupancy.startTime}-${occupancy.endTime} 的整段占用吗？`,
+            confirmColor: '#E53935',
+            success: (modalRes) => {
+              if (modalRes.confirm) {
+                cancelOccupancySegment(occupancy);
+                Taro.showToast({ title: '已取消占用', icon: 'success' });
+              }
+            }
+          });
+        } else if (res.tapIndex === 1) {
+          handleCancelPartial(occupancy);
+        }
+      }
+    });
+  };
+
+  const handleCancelPartial = (occupancy: Occupancy) => {
+    const start = dayjs(`${occupancy.date} ${occupancy.startTime}`);
+    const end = dayjs(`${occupancy.date} ${occupancy.endTime}`);
+    const midStart = start.add(end.diff(start, 'minute') / 3, 'minute').format('HH:mm');
+    const midEnd = start.add(end.diff(start, 'minute') * 2 / 3, 'minute').format('HH:mm');
+
     Taro.showModal({
-      title: '取消占用',
-      content: `确定要取消「${occupancy.groupName}」在 ${occupancy.startTime}-${occupancy.endTime} 的时段占用吗？`,
+      title: '取消指定时段',
+      content: `请输入取消的时间段（用-分隔，例如 10:00-11:30）\n当前时段范围：${occupancy.startTime} - ${occupancy.endTime}`,
+      editable: true,
+      placeholderText: `${midStart}-${midEnd}`,
       confirmColor: '#E53935',
       success: (res) => {
-        if (res.confirm) {
-          cancelOccupancySegment(occupancy);
-          Taro.showToast({ title: '已取消占用', icon: 'success' });
+        if (res.confirm && res.content) {
+          const times = res.content.split('-').map(s => s.trim());
+          if (times.length === 2 && /^\d{2}:\d{2}$/.test(times[0]) && /^\d{2}:\d{2}$/.test(times[1])) {
+            const cancelStart = times[0];
+            const cancelEnd = times[1];
+
+            if (cancelStart >= cancelEnd) {
+              Taro.showToast({ title: '开始时间需早于结束时间', icon: 'none' });
+              return;
+            }
+            if (cancelStart < occupancy.startTime || cancelEnd > occupancy.endTime) {
+              Taro.showToast({ title: '取消时段需在占用范围内', icon: 'none' });
+              return;
+            }
+
+            cancelOccupancyTimeRange(occupancy, cancelStart, cancelEnd);
+            Taro.showToast({ title: '已取消指定时段', icon: 'success' });
+          } else {
+            Taro.showToast({ title: '请输入正确的时间格式', icon: 'none' });
+          }
         }
       }
     });
