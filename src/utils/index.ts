@@ -127,15 +127,17 @@ export const getStationTypeText = (type: string): string => {
 };
 
 export const isAdjacentAndSameGroup = (o1: Occupancy, o2: Occupancy): boolean => {
+  if (o1.preventMerge || o2.preventMerge) return false;
+  if (o1.splitFrom || o2.splitFrom) return false;
   if (o1.groupName !== o2.groupName) return false;
   if (o1.date !== o2.date) return false;
   if (o1.stationId !== o2.stationId) return false;
-  
+
   const t1Start = dayjs(`${o1.date} ${o1.startTime}`);
   const t1End = dayjs(`${o1.date} ${o1.endTime}`);
   const t2Start = dayjs(`${o2.date} ${o2.startTime}`);
   const t2End = dayjs(`${o2.date} ${o2.endTime}`);
-  
+
   return t1End.isSame(t2Start) || t2End.isSame(t1Start) ||
     (t1Start.isBefore(t2Start) && t1End.isAfter(t2Start)) ||
     (t2Start.isBefore(t1Start) && t2End.isAfter(t1Start));

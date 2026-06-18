@@ -20,6 +20,7 @@ import {
 } from '@/utils';
 
 const STORE_CHANGE = 'store_change';
+export const SCHEDULE_LIST_FOCUS = 'schedule_list_focus';
 
 let _schedules: Schedule[] = [...mockSchedules];
 let _stations: Station[] = [...mockStations];
@@ -78,13 +79,16 @@ export function addSchedule(data: {
   _rawOccupancies = [..._rawOccupancies, occupancy];
 
   notify();
+  Taro.eventCenter.trigger(SCHEDULE_LIST_FOCUS, { date: schedule.date, status: schedule.status });
 }
 
 export function updateScheduleStatus(id: string, status: ScheduleStatus) {
-  _schedules = _schedules.map(s => {
+  const updated = _schedules.map(s => {
     if (s.id !== id) return s;
     return { ...s, status, ...(status === 'completed' ? { actualDonors: s.actualDonors || s.expectedDonors } : {}) };
   });
+  const changedSchedule = updated.find(s => s.id === id);
+  _schedules = updated;
 
   if (status === 'cancelled') {
     const schedule = _schedules.find(s => s.id === id);
@@ -104,6 +108,9 @@ export function updateScheduleStatus(id: string, status: ScheduleStatus) {
   }
 
   notify();
+  if (changedSchedule) {
+    Taro.eventCenter.trigger(SCHEDULE_LIST_FOCUS, { date: changedSchedule.date, status });
+  }
 }
 
 export function addStation(data: {
@@ -138,6 +145,7 @@ export function splitOccupancySegment(mergedOcc: Occupancy, splitTime: string) {
   if (!splitDT.isAfter(rangeStart) || !splitDT.isBefore(rangeEnd)) return;
 
   const result: Occupancy[] = [];
+  const splitGroupId = generateId();
 
   for (const o of _rawOccupancies) {
     if (
@@ -159,13 +167,13 @@ export function splitOccupancySegment(mergedOcc: Occupancy, splitTime: string) {
     }
 
     if (!segEnd.isAfter(splitDT)) {
-      result.push(o);
+      result.push({ ...o, preventMerge: true, splitFrom: splitGroupId });
     } else if (!segStart.isBefore(splitDT)) {
-      result.push(o);
+      result.push({ ...o, preventMerge: true, splitFrom: splitGroupId });
     } else {
       result.push(
-        { ...o, endTime: splitTime, merged: false, id: generateId(), createdAt: new Date().toISOString() },
-        { ...o, startTime: splitTime, merged: false, id: generateId(), createdAt: new Date().toISOString() }
+        { ...o, endTime: splitTime, merged: false, id: generateId(), createdAt: new Date().toISOString(), preventMerge: true, splitFrom: splitGroupId },
+        { ...o, startTime: splitTime, merged: false, id: generateId(), createdAt: new Date().toISOString(), preventMerge: true, splitFrom: splitGroupId }
       );
     }
   }
@@ -201,14 +209,20 @@ export function cancelOccupancyTimeRange(mergedOcc: Occupancy, cancelStart: stri
       result.push({ ...o, status: 'cancelled' as OccupancyStatus });
     } else if (segStart.isBefore(cs) && segEnd.isAfter(ce)) {
       result.push(
-        { ...o, endTime: cancelStart, merged: false, id: generateId(), createdAt: new Date().toISOString() },
-        { ...o, status: 'cancelled' as OccupancyStatus },
-        { ...o, startTime: cancelEnd, merged: false, id: generateId(), createdAt: new Date().toISOString() }
+        { ...o, endTime: cancelStart, merged: false, id: generateId(), createdAt: new Date().toISOString(), preventMerge: true },
+        { ...o, startTime: cancelStart, endTime: cancelEnd, status: 'cancelled' as OccupancyStatus, merged: false, id: generateId(), createdAt: new Date().toISOString() },
+        { ...o, startTime: cancelEnd, merged: false, id: generateId(), createdAt: new Date().toISOString(), preventMerge: true }
       );
     } else if (segStart.isBefore(cs)) {
-      result.push({ ...o, endTime: cancelStart, merged: false });
+      result.push(
+        { ...o, endTime: cancelStart, merged: false, preventMerge: true },
+        { ...o, startTime: cancelStart, status: 'cancelled' as OccupancyStatus, merged: false, id: generateId(), createdAt: new Date().toISOString() }
+      );
     } else {
-      result.push({ ...o, startTime: cancelEnd, merged: false });
+      result.push(
+        { ...o, endTime: cancelEnd, status: 'cancelled' as OccupancyStatus, merged: false, id: generateId(), createdAt: new Date().toISOString() },
+        { ...o, startTime: cancelEnd, merged: false, preventMerge: true }
+      );
     }
   }
 

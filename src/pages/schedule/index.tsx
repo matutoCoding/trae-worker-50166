@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, ScrollView, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import PageHeader from '@/components/PageHeader';
 import ScheduleCard from '@/components/ScheduleCard';
 import EmptyState from '@/components/EmptyState';
-import { useStoreData } from '@/store';
+import { useStoreData, SCHEDULE_LIST_FOCUS } from '@/store';
 import type { ScheduleStatus } from '@/types';
 import { getCalendarDays, formatDate } from '@/utils';
 import styles from './index.module.scss';
@@ -20,6 +20,20 @@ const SchedulePage: React.FC = () => {
   const [month, setMonth] = useState(today.month());
   const [selectedDate, setSelectedDate] = useState<string>(today.format('YYYY-MM-DD'));
   const [filter, setFilter] = useState<FilterType>('all');
+
+  useEffect(() => {
+    const handler = (data: { date: string; status: ScheduleStatus }) => {
+      const d = dayjs(data.date);
+      setYear(d.year());
+      setMonth(d.month());
+      setSelectedDate(data.date);
+      setFilter(data.status);
+    };
+    Taro.eventCenter.on(SCHEDULE_LIST_FOCUS, handler);
+    return () => {
+      Taro.eventCenter.off(SCHEDULE_LIST_FOCUS, handler);
+    };
+  }, []);
 
   const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
 

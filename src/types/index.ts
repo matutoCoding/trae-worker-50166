@@ -46,6 +46,7 @@ export interface Occupancy {
   merged: boolean;
   mergedFrom?: string[];
   splitFrom?: string;
+  preventMerge?: boolean;
   createdAt: string;
 }
 
