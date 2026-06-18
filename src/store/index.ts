@@ -93,17 +93,21 @@ export function updateScheduleStatus(id: string, status: ScheduleStatus) {
   if (status === 'cancelled') {
     const schedule = _schedules.find(s => s.id === id);
     if (schedule) {
-      _rawOccupancies = _rawOccupancies.map(o => {
-        if (o.stationId === schedule.stationId &&
-            o.date === schedule.date &&
-            o.groupName === schedule.groupName &&
-            o.startTime >= schedule.startTime &&
-            o.endTime <= schedule.endTime &&
-            o.status === 'occupied') {
-          return { ...o, status: 'cancelled' as OccupancyStatus };
-        }
-        return o;
-      });
+      const mergedList = mergeOccupancies(_rawOccupancies);
+      const relatedMerged = mergedList.find(o =>
+        o.stationId === schedule.stationId &&
+        o.date === schedule.date &&
+        o.groupName === schedule.groupName &&
+        o.status === 'occupied' &&
+        dayjs(`${o.date} ${o.endTime}`).isAfter(dayjs(`${schedule.date} ${schedule.startTime}`)) &&
+        dayjs(`${o.date} ${o.startTime}`).isBefore(dayjs(`${schedule.date} ${schedule.endTime}`))
+      );
+
+      if (relatedMerged) {
+        const cancelStart = schedule.startTime > relatedMerged.startTime ? schedule.startTime : relatedMerged.startTime;
+        const cancelEnd = schedule.endTime < relatedMerged.endTime ? schedule.endTime : relatedMerged.endTime;
+        cancelOccupancyTimeRange(relatedMerged, cancelStart, cancelEnd);
+      }
     }
   }
 
@@ -145,7 +149,8 @@ export function splitOccupancySegment(mergedOcc: Occupancy, splitTime: string) {
   if (!splitDT.isAfter(rangeStart) || !splitDT.isBefore(rangeEnd)) return;
 
   const result: Occupancy[] = [];
-  const splitGroupId = generateId();
+  const rangeStartStr = mergedOcc.startTime;
+  const rangeEndStr = mergedOcc.endTime;
 
   for (const o of _rawOccupancies) {
     if (
@@ -160,23 +165,44 @@ export function splitOccupancySegment(mergedOcc: Occupancy, splitTime: string) {
 
     const segStart = dayjs(`${o.date} ${o.startTime}`);
     const segEnd = dayjs(`${o.date} ${o.endTime}`);
+    const rs = dayjs(`${mergedOcc.date} ${rangeStartStr}`);
+    const re = dayjs(`${mergedOcc.date} ${rangeEndStr}`);
 
-    if (!segEnd.isAfter(rangeStart) || !segStart.isBefore(rangeEnd)) {
+    if (segEnd.isBefore(rs) || segStart.isAfter(re)) {
       result.push(o);
       continue;
     }
 
-    if (!segEnd.isAfter(splitDT)) {
-      result.push({ ...o, preventMerge: true, splitFrom: splitGroupId });
-    } else if (!segStart.isBefore(splitDT)) {
-      result.push({ ...o, preventMerge: true, splitFrom: splitGroupId });
-    } else {
-      result.push(
-        { ...o, endTime: splitTime, merged: false, id: generateId(), createdAt: new Date().toISOString(), preventMerge: true, splitFrom: splitGroupId },
-        { ...o, startTime: splitTime, merged: false, id: generateId(), createdAt: new Date().toISOString(), preventMerge: true, splitFrom: splitGroupId }
-      );
-    }
+    // 跳过所有在合并段范围内的原始段，后面统一插入新的大段
   }
+
+  const now = new Date().toISOString();
+  result.push({
+    id: generateId(),
+    stationId: mergedOcc.stationId,
+    stationName: mergedOcc.stationName,
+    groupName: mergedOcc.groupName,
+    date: mergedOcc.date,
+    startTime: mergedOcc.startTime,
+    endTime: splitTime,
+    status: 'occupied',
+    merged: false,
+    preventMerge: true,
+    createdAt: now
+  });
+  result.push({
+    id: generateId(),
+    stationId: mergedOcc.stationId,
+    stationName: mergedOcc.stationName,
+    groupName: mergedOcc.groupName,
+    date: mergedOcc.date,
+    startTime: splitTime,
+    endTime: mergedOcc.endTime,
+    status: 'occupied',
+    merged: false,
+    preventMerge: true,
+    createdAt: now
+  });
 
   _rawOccupancies = result;
   notify();
@@ -202,28 +228,62 @@ export function cancelOccupancyTimeRange(mergedOcc: Occupancy, cancelStart: stri
 
     const segStart = dayjs(`${o.date} ${o.startTime}`);
     const segEnd = dayjs(`${o.date} ${o.endTime}`);
+    const rs = dayjs(`${mergedOcc.date} ${mergedOcc.startTime}`);
+    const re = dayjs(`${mergedOcc.date} ${mergedOcc.endTime}`);
 
-    if (!segEnd.isAfter(cs) || !segStart.isBefore(ce)) {
+    if (segEnd.isBefore(rs) || segStart.isAfter(re)) {
       result.push(o);
-    } else if (!segStart.isBefore(cs) && !segEnd.isAfter(ce)) {
-      result.push({ ...o, status: 'cancelled' as OccupancyStatus });
-    } else if (segStart.isBefore(cs) && segEnd.isAfter(ce)) {
-      result.push(
-        { ...o, endTime: cancelStart, merged: false, id: generateId(), createdAt: new Date().toISOString(), preventMerge: true },
-        { ...o, startTime: cancelStart, endTime: cancelEnd, status: 'cancelled' as OccupancyStatus, merged: false, id: generateId(), createdAt: new Date().toISOString() },
-        { ...o, startTime: cancelEnd, merged: false, id: generateId(), createdAt: new Date().toISOString(), preventMerge: true }
-      );
-    } else if (segStart.isBefore(cs)) {
-      result.push(
-        { ...o, endTime: cancelStart, merged: false, preventMerge: true },
-        { ...o, startTime: cancelStart, status: 'cancelled' as OccupancyStatus, merged: false, id: generateId(), createdAt: new Date().toISOString() }
-      );
-    } else {
-      result.push(
-        { ...o, endTime: cancelEnd, status: 'cancelled' as OccupancyStatus, merged: false, id: generateId(), createdAt: new Date().toISOString() },
-        { ...o, startTime: cancelEnd, merged: false, preventMerge: true }
-      );
+      continue;
     }
+
+    // 跳过所有在合并段范围内的原始段，后面统一插入新的大段
+  }
+
+  const now = new Date().toISOString();
+
+  if (mergedOcc.startTime < cancelStart) {
+    result.push({
+      id: generateId(),
+      stationId: mergedOcc.stationId,
+      stationName: mergedOcc.stationName,
+      groupName: mergedOcc.groupName,
+      date: mergedOcc.date,
+      startTime: mergedOcc.startTime,
+      endTime: cancelStart,
+      status: 'occupied',
+      merged: false,
+      preventMerge: true,
+      createdAt: now
+    });
+  }
+
+  result.push({
+    id: generateId(),
+    stationId: mergedOcc.stationId,
+    stationName: mergedOcc.stationName,
+    groupName: mergedOcc.groupName,
+    date: mergedOcc.date,
+    startTime: cancelStart,
+    endTime: cancelEnd,
+    status: 'cancelled',
+    merged: false,
+    createdAt: now
+  });
+
+  if (mergedOcc.endTime > cancelEnd) {
+    result.push({
+      id: generateId(),
+      stationId: mergedOcc.stationId,
+      stationName: mergedOcc.stationName,
+      groupName: mergedOcc.groupName,
+      date: mergedOcc.date,
+      startTime: cancelEnd,
+      endTime: mergedOcc.endTime,
+      status: 'occupied',
+      merged: false,
+      preventMerge: true,
+      createdAt: now
+    });
   }
 
   _rawOccupancies = result;
