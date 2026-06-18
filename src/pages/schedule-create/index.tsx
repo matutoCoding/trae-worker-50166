@@ -3,10 +3,11 @@ import { View, Text, ScrollView, Input, Button, Textarea } from '@tarojs/compone
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
-import { mockStations } from '@/data/station';
+import { useStoreData, addSchedule } from '@/store';
 import styles from './index.module.scss';
 
 const ScheduleCreatePage: React.FC = () => {
+  const { stations } = useStoreData();
   const today = dayjs();
   const [form, setForm] = useState({
     stationId: '',
@@ -20,7 +21,7 @@ const ScheduleCreatePage: React.FC = () => {
     notes: ''
   });
 
-  const stationOptions = mockStations.filter(s => s.status === 'active');
+  const stationOptions = stations.filter(s => s.status === 'active');
 
   const updateField = (key: string, value: any) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -65,7 +66,18 @@ const ScheduleCreatePage: React.FC = () => {
       content: `确定创建该排期吗？\n${form.groupName}\n${form.date} ${form.startTime}-${form.endTime}`,
       success: (res) => {
         if (res.confirm) {
-          console.log('[ScheduleCreate] 创建排期:', form);
+          addSchedule({
+            stationId: form.stationId,
+            stationName: selectedStation?.name || '',
+            groupName: form.groupName,
+            date: form.date,
+            startTime: form.startTime,
+            endTime: form.endTime,
+            expectedDonors: form.expectedDonors,
+            contactPerson: form.contactPerson,
+            contactPhone: form.contactPhone,
+            notes: form.notes
+          });
           Taro.showToast({ title: '创建成功', icon: 'success' });
           setTimeout(() => Taro.navigateBack(), 1000);
         }

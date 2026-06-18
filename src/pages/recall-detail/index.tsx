@@ -4,7 +4,7 @@ import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import StatusTag from '@/components/StatusTag';
 import EmptyState from '@/components/EmptyState';
-import { mockRecalls, mockHospitals } from '@/data/recall';
+import { useStoreData, updateRecallStatus } from '@/store';
 import type { Recall, RecallStatus } from '@/types';
 import {
   formatDateTime,
@@ -15,10 +15,11 @@ import styles from './index.module.scss';
 const RecallDetailPage: React.FC = () => {
   const router = useRouter();
   const id = router.params.id;
+  const { recalls, hospitals: storeHospitals } = useStoreData();
 
   const recall = useMemo<Recall | undefined>(() => {
-    return mockRecalls.find(r => r.id === id);
-  }, [id]);
+    return recalls.find(r => r.id === id);
+  }, [id, recalls]);
 
   const stats = useMemo(() => {
     if (!recall) return { hospitals: 0, bags: 0, volume: 0 };
@@ -45,6 +46,7 @@ const RecallDetailPage: React.FC = () => {
       confirmColor: '#E53935',
       success: (res) => {
         if (res.confirm) {
+          updateRecallStatus(id, 'processing');
           Taro.showToast({ title: '召回已启动', icon: 'success' });
         }
       }
@@ -57,6 +59,7 @@ const RecallDetailPage: React.FC = () => {
       content: '确认所有血液制品已回收完毕？',
       success: (res) => {
         if (res.confirm) {
+          updateRecallStatus(id, 'completed');
           Taro.showToast({ title: '召回已完成', icon: 'success' });
         }
       }
@@ -190,7 +193,7 @@ const RecallDetailPage: React.FC = () => {
               涉及医院（{recall.flowRecords.length}家）
             </Text>
             {recall.flowRecords.map(record => {
-              const hospital = mockHospitals.find(h => h.id === record.hospitalId);
+              const hospital = storeHospitals.find(h => h.id === record.hospitalId);
               return (
                 <View key={record.id} className={styles.hospitalItem}>
                   <View className={styles.hospitalRow}>

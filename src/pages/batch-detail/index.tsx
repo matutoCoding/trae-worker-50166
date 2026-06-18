@@ -4,8 +4,7 @@ import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import StatusTag from '@/components/StatusTag';
 import EmptyState from '@/components/EmptyState';
-import { mockBatches } from '@/data/batch';
-import { mockFlowRecords } from '@/data/recall';
+import { useStoreData, updateBatchStatus, initiateRecall } from '@/store';
 import type { Batch, BatchStatus, BloodType } from '@/types';
 import {
   formatDate,
@@ -17,15 +16,16 @@ import styles from './index.module.scss';
 const BatchDetailPage: React.FC = () => {
   const router = useRouter();
   const id = router.params.id;
+  const { batches, flowRecords: storeFlowRecords } = useStoreData();
 
   const batch = useMemo<Batch | undefined>(() => {
-    return mockBatches.find(b => b.id === id);
-  }, [id]);
+    return batches.find(b => b.id === id);
+  }, [id, batches]);
 
   const flowRecords = useMemo(() => {
     if (!batch) return [];
-    return mockFlowRecords.filter(f => f.batchId === batch.id);
-  }, [batch]);
+    return storeFlowRecords.filter(f => f.batchId === batch.id);
+  }, [batch, storeFlowRecords]);
 
   const getStatusType = (status: BatchStatus): 'success' | 'warning' | 'danger' | 'purple' => {
     const map: Record<BatchStatus, 'success' | 'warning' | 'danger' | 'purple'> = {
@@ -44,6 +44,9 @@ const BatchDetailPage: React.FC = () => {
       confirmColor: '#E53935',
       success: (res) => {
         if (res.confirm) {
+          if (batch) {
+            initiateRecall(batch.id, '需召回检查');
+          }
           Taro.showToast({ title: '召回已发起', icon: 'success' });
         }
       }
@@ -51,6 +54,9 @@ const BatchDetailPage: React.FC = () => {
   };
 
   const handleMarkQualified = () => {
+    if (batch) {
+      updateBatchStatus(batch.id, 'qualified');
+    }
     Taro.showToast({ title: '已标记合格', icon: 'success' });
   };
 

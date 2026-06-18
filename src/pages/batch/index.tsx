@@ -5,27 +5,28 @@ import classnames from 'classnames';
 import PageHeader from '@/components/PageHeader';
 import BatchCard from '@/components/BatchCard';
 import EmptyState from '@/components/EmptyState';
-import { mockBatches } from '@/data/batch';
+import { useStoreData } from '@/store';
 import type { BatchStatus } from '@/types';
 import styles from './index.module.scss';
 
 type FilterType = 'all' | BatchStatus;
 
 const BatchPage: React.FC = () => {
+  const { batches } = useStoreData();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
 
   const stats = useMemo(() => {
     return {
-      total: mockBatches.length,
-      totalBags: mockBatches.reduce((sum, b) => sum + b.totalBags, 0),
-      totalVolume: mockBatches.reduce((sum, b) => sum + b.totalVolume, 0),
-      qualified: mockBatches.filter(b => b.status === 'qualified').length
+      total: batches.length,
+      totalBags: batches.reduce((sum, b) => sum + b.totalBags, 0),
+      totalVolume: batches.reduce((sum, b) => sum + b.totalVolume, 0),
+      qualified: batches.filter(b => b.status === 'qualified').length
     };
-  }, []);
+  }, [batches]);
 
   const filteredBatches = useMemo(() => {
-    let list = mockBatches;
+    let list = batches;
     if (filter !== 'all') {
       list = list.filter(b => b.status === filter);
     }
@@ -38,7 +39,7 @@ const BatchPage: React.FC = () => {
       );
     }
     return list.sort((a, b) => b.collectDate.localeCompare(a.collectDate));
-  }, [filter, searchKeyword]);
+  }, [filter, searchKeyword, batches]);
 
   const filters: { key: FilterType; label: string }[] = [
     { key: 'all', label: '全部' },

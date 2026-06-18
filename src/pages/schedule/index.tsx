@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import PageHeader from '@/components/PageHeader';
 import ScheduleCard from '@/components/ScheduleCard';
 import EmptyState from '@/components/EmptyState';
-import { mockSchedules } from '@/data/schedule';
+import { useStoreData } from '@/store';
 import type { ScheduleStatus } from '@/types';
 import { getCalendarDays, formatDate } from '@/utils';
 import styles from './index.module.scss';
@@ -14,6 +14,7 @@ import styles from './index.module.scss';
 type FilterType = 'all' | ScheduleStatus;
 
 const SchedulePage: React.FC = () => {
+  const { schedules } = useStoreData();
   const today = dayjs();
   const [year, setYear] = useState(today.year());
   const [month, setMonth] = useState(today.month());
@@ -25,17 +26,17 @@ const SchedulePage: React.FC = () => {
   const calendarDays = useMemo(() => {
     const days = getCalendarDays(year, month);
     const scheduleMap = new Map<string, number>();
-    mockSchedules.forEach(s => {
+    schedules.forEach(s => {
       scheduleMap.set(s.date, (scheduleMap.get(s.date) || 0) + 1);
     });
     return days.map(d => ({
       ...d,
       scheduleCount: scheduleMap.get(d.date) || 0
     }));
-  }, [year, month]);
+  }, [year, month, schedules]);
 
   const filteredSchedules = useMemo(() => {
-    let list = mockSchedules;
+    let list = schedules;
     if (filter !== 'all') {
       list = list.filter(s => s.status === filter);
     }
@@ -46,13 +47,13 @@ const SchedulePage: React.FC = () => {
   }, [filter, selectedDate]);
 
   const stats = useMemo(() => {
-    const todaySchedules = mockSchedules.filter(s => s.date === today.format('YYYY-MM-DD'));
+    const todaySchedules = schedules.filter(s => s.date === today.format('YYYY-MM-DD'));
     return {
       todayCount: todaySchedules.length,
       totalExpected: todaySchedules.reduce((sum, s) => sum + s.expectedDonors, 0),
       totalActual: todaySchedules.reduce((sum, s) => sum + (s.actualDonors || 0), 0)
     };
-  }, []);
+  }, [schedules]);
 
   const goPrevMonth = () => {
     if (month === 0) {

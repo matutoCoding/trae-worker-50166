@@ -4,7 +4,7 @@ import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import StatusTag from '@/components/StatusTag';
 import EmptyState from '@/components/EmptyState';
-import { mockSchedules } from '@/data/schedule';
+import { useStoreData, updateScheduleStatus } from '@/store';
 import type { Schedule, ScheduleStatus } from '@/types';
 import {
   formatDate,
@@ -14,11 +14,12 @@ import {
 import styles from './index.module.scss';
 
 const ScheduleDetailPage: React.FC = () => {
+  const { schedules } = useStoreData();
   const router = useRouter();
   const id = router.params.id;
 
   const schedule = useMemo<Schedule | undefined>(() => {
-    return mockSchedules.find(s => s.id === id);
+    return schedules.find(s => s.id === id);
   }, [id]);
 
   const getStatusType = (status: ScheduleStatus): 'info' | 'primary' | 'success' | 'default' => {
@@ -50,6 +51,7 @@ const ScheduleDetailPage: React.FC = () => {
       confirmColor: '#E53935',
       success: (res) => {
         if (res.confirm) {
+          updateScheduleStatus(id, 'cancelled');
           Taro.showToast({ title: '已取消排期', icon: 'success' });
           setTimeout(() => Taro.navigateBack(), 1000);
         }
@@ -58,6 +60,7 @@ const ScheduleDetailPage: React.FC = () => {
   };
 
   const handleComplete = () => {
+    updateScheduleStatus(id, 'completed');
     Taro.showToast({ title: '已标记完成', icon: 'success' });
   };
 

@@ -3,12 +3,12 @@ import { View, Text, ScrollView, Input, Button, Textarea } from '@tarojs/compone
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
-import { mockStations } from '@/data/station';
+import { useStoreData, addBatch } from '@/store';
 import type { BloodType } from '@/types';
-import { generateBatchNumber } from '@/utils';
 import styles from './index.module.scss';
 
 const BatchCreatePage: React.FC = () => {
+  const { stations } = useStoreData();
   const today = dayjs();
   const [form, setForm] = useState({
     stationId: '',
@@ -23,8 +23,7 @@ const BatchCreatePage: React.FC = () => {
     } as Record<BloodType, number>
   });
 
-  const stationOptions = mockStations.filter(s => s.status === 'active');
-  const previewBatchNumber = useMemo(() => generateBatchNumber(), []);
+  const stationOptions = stations.filter(s => s.status === 'active');
 
   const totalBags = useMemo(() => {
     return Object.values(form.bloodTypeDistribution).reduce((s, n) => s + n, 0);
@@ -74,11 +73,13 @@ const BatchCreatePage: React.FC = () => {
       confirmColor: '#E53935',
       success: (res) => {
         if (res.confirm) {
-          console.log('[BatchCreate] 登记批次:', {
-            ...form,
-            batchNumber: previewBatchNumber,
-            totalBags,
-            totalVolume
+          addBatch({
+            stationId: form.stationId,
+            stationName: selectedStation?.name || '',
+            collectDate: form.collectDate,
+            expiryDate: form.expiryDate,
+            bloodTypeDistribution: form.bloodTypeDistribution,
+            notes: form.notes
           });
           Taro.showToast({ title: '登记成功', icon: 'success' });
           setTimeout(() => Taro.navigateBack(), 1000);
@@ -97,11 +98,10 @@ const BatchCreatePage: React.FC = () => {
 
           <View className={styles.formItem}>
             <Text className={styles.formLabel}>
-              批号预览
+              批号
             </Text>
             <View className={styles.previewBox}>
-              <Text className={styles.previewLabel}>系统自动生成</Text>
-              <Text className={styles.previewValue}>{previewBatchNumber}</Text>
+              <Text className={styles.previewLabel}>提交后系统自动生成</Text>
             </View>
           </View>
 

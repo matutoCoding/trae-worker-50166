@@ -6,20 +6,19 @@ import dayjs from 'dayjs';
 import PageHeader from '@/components/PageHeader';
 import EmptyState from '@/components/EmptyState';
 import StatusTag from '@/components/StatusTag';
-import { mockOccupancies } from '@/data/occupancy';
-import { mockStations } from '@/data/station';
 import type { Occupancy } from '@/types';
-import { formatDate, getOccupancyStatusText, splitOccupancy } from '@/utils';
+import { formatDate, getOccupancyStatusText } from '@/utils';
+import { useStoreData, cancelOccupancySegment, splitOccupancySegment } from '@/store';
 import styles from './index.module.scss';
 
 const OccupancyPage: React.FC = () => {
   const today = dayjs();
   const [currentDate, setCurrentDate] = useState<string>(today.format('YYYY-MM-DD'));
-  const [occupancies, setOccupancies] = useState<Occupancy[]>(mockOccupancies);
+  const { occupancies: storeOccupancies, stations: storeStations } = useStoreData();
 
   const filteredOccupancies = useMemo(() => {
-    return occupancies.filter(o => o.date === currentDate);
-  }, [occupancies, currentDate]);
+    return storeOccupancies.filter(o => o.date === currentDate);
+  }, [storeOccupancies, currentDate]);
 
   const stationsWithOccupancy = useMemo(() => {
     const stationMap = new Map<string, Occupancy[]>();
@@ -30,13 +29,13 @@ const OccupancyPage: React.FC = () => {
       stationMap.get(o.stationId)!.push(o);
     });
 
-    return mockStations
+    return storeStations
       .filter(s => s.status === 'active')
       .map(station => ({
         station,
         occupancies: (stationMap.get(station.id) || []).sort((a, b) => a.startTime.localeCompare(b.startTime))
       }));
-  }, [filteredOccupancies]);
+  }, [filteredOccupancies, storeStations]);
 
   const stats = useMemo(() => {
     const list = filteredOccupancies;
@@ -65,9 +64,7 @@ const OccupancyPage: React.FC = () => {
           const start = dayjs(`${occupancy.date} ${occupancy.startTime}`);
           const end = dayjs(`${occupancy.date} ${occupancy.endTime}`);
           const midTime = start.add(end.diff(start, 'minute') / 2, 'minute').format('HH:mm');
-          const splitResult = splitOccupancy(occupancy, midTime);
-          const newList = occupancies.filter(o => o.id !== occupancy.id);
-          setOccupancies([...newList, ...splitResult]);
+          splitOccupancySegment(occupancy.id, midTime);
           Taro.showToast({ title: '拆分成功', icon: 'success' });
         }
       }
@@ -81,10 +78,7 @@ const OccupancyPage: React.FC = () => {
       confirmColor: '#E53935',
       success: (res) => {
         if (res.confirm) {
-          const newList = occupancies.map(o =>
-            o.id === occupancy.id ? { ...o, status: 'cancelled' as const } : o
-          );
-          setOccupancies(newList);
+          cancelOccupancySegment(occupancy);
           Taro.showToast({ title: '已取消占用', icon: 'success' });
         }
       }

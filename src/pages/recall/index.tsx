@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import PageHeader from '@/components/PageHeader';
 import StatusTag from '@/components/StatusTag';
 import EmptyState from '@/components/EmptyState';
-import { mockFlowRecords, mockRecalls } from '@/data/recall';
+import { useStoreData } from '@/store';
 import type { RecallStatus } from '@/types';
 import { formatDateTime, getRecallStatusText } from '@/utils';
 import styles from './index.module.scss';
@@ -15,13 +15,14 @@ type TabType = 'flow' | 'recall';
 const RecallPage: React.FC = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('flow');
+  const { flowRecords: storeFlowRecords, recalls } = useStoreData();
   const [searchBatch, setSearchBatch] = useState('');
-  const [searchResult, setSearchResult] = useState<typeof mockFlowRecords>([]);
+  const [searchResult, setSearchResult] = useState<typeof storeFlowRecords>([]);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const recalls = useMemo(() => {
-    return [...mockRecalls].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, []);
+  const sortedRecalls = useMemo(() => {
+    return [...recalls].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }, [recalls]);
 
   const handleSearch = () => {
     if (!searchBatch.trim()) {
@@ -29,7 +30,7 @@ const RecallPage: React.FC = () => {
       return;
     }
     const kw = searchBatch.trim().toUpperCase();
-    const results = mockFlowRecords.filter(f => f.batchNumber.toUpperCase().includes(kw));
+    const results = storeFlowRecords.filter(f => f.batchNumber.toUpperCase().includes(kw));
     setSearchResult(results);
     setHasSearched(true);
   };
@@ -146,8 +147,8 @@ const RecallPage: React.FC = () => {
         )}
 
         {activeTab === 'recall' && (
-          recalls.length > 0 ? (
-            recalls.map(recall => (
+          sortedRecalls.length > 0 ? (
+            sortedRecalls.map(recall => (
               <View
                 key={recall.id}
                 className={styles.recallCard}

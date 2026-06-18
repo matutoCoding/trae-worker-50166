@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import PageHeader from '@/components/PageHeader';
 import StatusTag from '@/components/StatusTag';
 import EmptyState from '@/components/EmptyState';
-import { mockStations } from '@/data/station';
+import { useStoreData, addStation, toggleStationStatus } from '@/store';
 import type { Station, StationType } from '@/types';
 import { getStationTypeText } from '@/utils';
 import styles from './index.module.scss';
@@ -14,19 +14,19 @@ type FilterType = 'all' | StationType | 'active' | 'inactive';
 
 const StationPage: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('all');
-  const [stations, setStations] = useState<Station[]>(mockStations);
+  const { stations: storeStations } = useStoreData();
 
   const stats = useMemo(() => {
     return {
-      total: stations.length,
-      active: stations.filter(s => s.status === 'active').length,
-      vehicle: stations.filter(s => s.type === 'vehicle').length,
-      fixed: stations.filter(s => s.type === 'fixed').length
+      total: storeStations.length,
+      active: storeStations.filter(s => s.status === 'active').length,
+      vehicle: storeStations.filter(s => s.type === 'vehicle').length,
+      fixed: storeStations.filter(s => s.type === 'fixed').length
     };
-  }, [stations]);
+  }, [storeStations]);
 
   const filteredStations = useMemo(() => {
-    let list = stations;
+    let list = storeStations;
     if (filter === 'active') {
       list = list.filter(s => s.status === 'active');
     } else if (filter === 'inactive') {
@@ -37,7 +37,7 @@ const StationPage: React.FC = () => {
       list = list.filter(s => s.type === 'fixed');
     }
     return list;
-  }, [filter, stations]);
+  }, [filter, storeStations]);
 
   const filters: { key: FilterType; label: string }[] = [
     { key: 'all', label: '全部' },
@@ -48,7 +48,7 @@ const StationPage: React.FC = () => {
   ];
 
   const handleToggleStatus = (stationId: string) => {
-    const station = stations.find(s => s.id === stationId);
+    const station = storeStations.find(s => s.id === stationId);
     if (!station) return;
     const nextStatus = station.status === 'active' ? 'inactive' : 'active';
     Taro.showModal({
@@ -57,11 +57,7 @@ const StationPage: React.FC = () => {
       confirmColor: nextStatus === 'active' ? '#00B42A' : '#E53935',
       success: (res) => {
         if (res.confirm) {
-          setStations(prev =>
-            prev.map(s =>
-              s.id === stationId ? { ...s, status: nextStatus as 'active' | 'inactive' } : s
-            )
-          );
+          toggleStationStatus(stationId);
           Taro.showToast({ title: `已${nextStatus === 'active' ? '启用' : '停用'}`, icon: 'success' });
         }
       }
@@ -69,7 +65,37 @@ const StationPage: React.FC = () => {
   };
 
   const handleAdd = () => {
-    Taro.showToast({ title: '新增功能开发中', icon: 'none' });
+    Taro.showActionSheet({
+      itemList: ['采血车', '固定献血屋'],
+      success: (res) => {
+        const type: StationType = res.tapIndex === 0 ? 'vehicle' : 'fixed';
+        const typeName = type === 'vehicle' ? '采血车' : '固定献血屋';
+        Taro.showModal({
+          title: `新增${typeName}`,
+          content: `请输入名称、位置、容量（用逗号分隔）\n例如：5号采血车,南门广场,30`,
+          editable: true,
+          placeholderText: '名称,位置,容量',
+          success: (modalRes) => {
+            if (modalRes.confirm && modalRes.content) {
+              const parts = modalRes.content.split(',').map(s => s.trim());
+              if (parts.length >= 3) {
+                const capacity = parseInt(parts[2]) || 25;
+                addStation({
+                  name: parts[0],
+                  type,
+                  location: parts[1],
+                  capacity,
+                  description: parts[3] || undefined
+                });
+                Taro.showToast({ title: '新增成功', icon: 'success' });
+              } else {
+                Taro.showToast({ title: '请输入完整信息', icon: 'none' });
+              }
+            }
+          }
+        });
+      }
+    });
   };
 
   const handleStationClick = (station: Station) => {
