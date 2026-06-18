@@ -1,0 +1,301 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: calc(#{$spacing-xxl} + env(safe-area-inset-bottom));
+}
+
+.content {
+  padding: $spacing-lg $page-padding;
+}
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+
+  &.qualified { background-color: $color-success-light; }
+  &.pending { background-color: $color-warning-light; }
+  &.abnormal { background-color: $color-danger-light; }
+  &.recalled { background-color: $color-purple-light; }
+}
+
+.statusBarText {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+
+  &.qualified { color: $color-success; }
+  &.pending { color: $color-warning; }
+  &.abnormal { color: $color-danger; }
+  &.recalled { color: $color-purple; }
+}
+
+.batchHeader {
+  background: linear-gradient(135deg, $color-primary-light 0%, rgba($color-primary-light, 0.5) 100%);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.batchNumber {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary-dark;
+  display: block;
+}
+
+.batchDates {
+  font-size: $font-size-sm;
+  color: $color-secondary;
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.detailCard {
+  @include card-base;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.titleDot {
+  width: 8rpx;
+  height: 8rpx;
+  background-color: $color-primary;
+  border-radius: $radius-round;
+}
+
+.infoRow {
+  display: flex;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-border-light;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoLabel {
+  width: 160rpx;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+}
+
+.infoValue {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.statsGrid {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.statItem {
+  flex: 1;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.statNum {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  line-height: 1.2;
+  display: block;
+}
+
+.statUnit {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: $spacing-xs;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.bloodTypeDist {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.bloodTypeCard {
+  flex: 1;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-sm;
+  text-align: center;
+}
+
+.bloodTypeLabel {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  display: block;
+}
+
+.bloodTypeCount {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.bagList {
+  margin-top: $spacing-sm;
+}
+
+.bagItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-border-light;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.bagNumber {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  font-family: 'Courier New', monospace;
+}
+
+.bagInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.bagTypeChip {
+  display: inline-block;
+  padding: $spacing-xs $spacing-sm;
+  background-color: $color-primary-light;
+  color: $color-primary;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.bagVolume {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.bagDonor {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.flowCard {
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+}
+
+.flowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.flowHospital {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.flowStats {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.flowInfo {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.flowBloodTypes {
+  margin-top: $spacing-sm;
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  display: flex;
+  gap: $spacing-md;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.actionBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &.primary {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+    color: $color-text-inverse;
+  }
+
+  &.default {
+    background-color: $color-bg-page;
+    color: $color-text-secondary;
+    border: 1rpx solid $color-border;
+  }
+
+  &.danger {
+    background-color: $color-danger-light;
+    color: $color-danger;
+  }
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.sectionSubTitle {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-sm;
+}

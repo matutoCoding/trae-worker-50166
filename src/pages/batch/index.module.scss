@@ -1,0 +1,165 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: calc(#{$tabbar-height} + #{$spacing-lg});
+}
+
+.content {
+  padding: 0 $page-padding;
+  position: relative;
+  z-index: 2;
+}
+
+.headerActions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.addBtn {
+  @include button-reset;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: $color-text-inverse;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.96);
+  }
+}
+
+.searchBar {
+  @include card-base;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.searchInput {
+  flex: 1;
+  height: 64rpx;
+  background-color: $color-bg-page;
+  border-radius: $radius-button;
+  padding: 0 $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  box-sizing: border-box;
+}
+
+.stationBtn {
+  @include button-reset;
+  padding: $spacing-xs $spacing-md;
+  background-color: $color-secondary-light;
+  color: $color-secondary;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.statsOverview {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.statCard {
+  flex: 1;
+  @include card-base;
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+}
+
+.statCardMain {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: $spacing-xs;
+}
+
+.statNum {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  line-height: 1;
+
+  &.red { color: $color-primary; }
+  &.green { color: $color-success; }
+  &.orange { color: $color-warning; }
+  &.purple { color: #7B61FF; }
+}
+
+.statUnit {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-left: $spacing-xs;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.filterTabs {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  overflow-x: auto;
+  padding: $spacing-xs 0;
+}
+
+.filterTab {
+  @include button-reset;
+  padding: $spacing-xs $spacing-lg;
+  border-radius: $radius-button;
+  background-color: $color-bg-card;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  flex-shrink: 0;
+  transition: all $transition-base;
+  box-shadow: $shadow-card;
+
+  &.active {
+    background-color: $color-primary;
+    color: $color-text-inverse;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.batchList {
+  padding-bottom: $spacing-md;
+}
+
+.stationManageBtn {
+  @include button-reset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: $spacing-md;
+  background: linear-gradient(135deg, $color-secondary-light 0%, rgba($color-secondary-light, 0.5) 100%);
+  color: $color-secondary-dark;
+  border-radius: $radius-lg;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.99);
+  }
+}

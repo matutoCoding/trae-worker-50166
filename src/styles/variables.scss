@@ -1,0 +1,122 @@
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 48rpx;
+$spacing-xxl: 64rpx;
+
+$page-padding: 32rpx;
+$max-content-width: 686rpx;
+$card-padding: 32rpx;
+$card-padding-lg: 48rpx;
+
+$radius-xs: 4rpx;
+$radius-sm: 8rpx;
+$radius-md: 12rpx;
+$radius-lg: 16rpx;
+$radius-xl: 24rpx;
+$radius-button: 48rpx;
+$radius-round: 999rpx;
+
+$shadow-card: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+$shadow-float: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+$shadow-card-hover: 0 4rpx 20rpx rgba(0, 0, 0, 0.12);
+$shadow-popup: 0 8rpx 32rpx rgba(0, 0, 0, 0.15);
+
+$font-size-xs: 22rpx;
+$font-size-sm: 24rpx;
+$font-size-base: 28rpx;
+$font-size-md: 30rpx;
+$font-size-lg: 34rpx;
+$font-size-xl: 40rpx;
+$font-size-xxl: 48rpx;
+
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$line-height-base: 1.5;
+
+$button-height-sm: 64rpx;
+$button-height-md: 80rpx;
+$button-height-lg: 96rpx;
+
+$transition-base: 0.2s ease;
+$transition-fast: 0.15s ease;
+$transition-slow: 0.3s ease;
+
+$header-height: 88rpx;
+$tabbar-height: 100rpx;
+
+@mixin button-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  box-sizing: border-box;
+  &::after {
+    border: none;
+  }
+}
+
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-ellipsis-multi($line: 2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: $line;
+  -webkit-box-orient: vertical;
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin scroll-x-container {
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+@mixin scroll-x-item($width) {
+  display: inline-block;
+  width: $width;
+  vertical-align: top;
+  white-space: normal;
+}
+
+@mixin card-base {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $card-padding;
+  box-sizing: border-box;
+}
+
+@mixin safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}

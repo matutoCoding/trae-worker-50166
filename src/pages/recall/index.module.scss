@@ -1,0 +1,253 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: calc(#{$tabbar-height} + #{$spacing-lg});
+}
+
+.content {
+  padding: 0 $page-padding;
+  position: relative;
+  z-index: 2;
+}
+
+.tabSection {
+  @include card-base;
+  margin-bottom: $spacing-md;
+  padding: $spacing-xs;
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.tabBtn {
+  @include button-reset;
+  flex: 1;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &.active {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+    color: $color-text-inverse;
+    box-shadow: $shadow-card;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.searchPanel {
+  @include card-base;
+  margin-bottom: $spacing-md;
+}
+
+.searchTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.searchRow {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+.searchInput {
+  flex: 1;
+  height: 80rpx;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: 0 $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  box-sizing: border-box;
+  font-family: 'Courier New', monospace;
+}
+
+.searchBtn {
+  @include button-reset;
+  height: 80rpx;
+  padding: 0 $spacing-xl;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  color: $color-text-inverse;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.flowResult {
+  @include card-base;
+  margin-bottom: $spacing-md;
+}
+
+.resultHeader {
+  @include flex-between;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 1rpx solid $color-border-light;
+}
+
+.resultTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.resultBadge {
+  padding: $spacing-xs $spacing-md;
+  background-color: $color-success-light;
+  color: $color-success;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.hospitalItem {
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-border-light;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.hospitalRow {
+  @include flex-between;
+  margin-bottom: $spacing-xs;
+}
+
+.hospitalName {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.hospitalStats {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.hospitalInfo {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.bloodTypesRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-xs;
+}
+
+.bloodTypeChip {
+  padding: 2rpx $spacing-sm;
+  background-color: $color-secondary-light;
+  color: $color-secondary;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.recallCard {
+  @include card-base;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+.recallHeader {
+  @include flex-between;
+  margin-bottom: $spacing-md;
+}
+
+.recallNumber {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  font-family: 'Courier New', monospace;
+}
+
+.recallBatch {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.recallBody {
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-border-light;
+}
+
+.recallReason {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-md;
+  display: block;
+  @include text-ellipsis-multi(2);
+}
+
+.recallStats {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.recallStatItem {
+  flex: 1;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.recallStatNum {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  line-height: 1.2;
+}
+
+.recallStatLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 2rpx;
+}
+
+.emptyHint {
+  @include card-base;
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.emptyDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

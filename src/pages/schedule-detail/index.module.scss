@@ -1,0 +1,198 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: calc(#{$spacing-xxl} + env(safe-area-inset-bottom));
+}
+
+.content {
+  padding: $spacing-lg $page-padding;
+}
+
+.detailCard {
+  @include card-base;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.titleDot {
+  width: 8rpx;
+  height: 8rpx;
+  background-color: $color-primary;
+  border-radius: $radius-round;
+}
+
+.infoRow {
+  display: flex;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-border-light;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoLabel {
+  width: 160rpx;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+}
+
+.infoValue {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.timeBarWrap {
+  background: linear-gradient(135deg, $color-primary-light 0%, rgba($color-primary-light, 0.5) 100%);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+  margin-bottom: $spacing-md;
+}
+
+.timeBarText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary-dark;
+}
+
+.timeBarDate {
+  font-size: $font-size-sm;
+  color: $color-secondary;
+  margin-top: $spacing-xs;
+}
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+
+  &.pending { background-color: $color-info-light; }
+  &.ongoing { background-color: $color-primary-light; }
+  &.completed { background-color: $color-success-light; }
+  &.cancelled { background-color: $color-bg-hover; }
+}
+
+.statusBarText {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+
+  &.pending { color: $color-info; }
+  &.ongoing { color: $color-primary; }
+  &.completed { color: $color-success; }
+  &.cancelled { color: $color-text-tertiary; }
+}
+
+.statsGrid {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.statItem {
+  flex: 1;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.statNum {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  line-height: 1.2;
+  display: block;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  display: flex;
+  gap: $spacing-md;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.actionBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &.primary {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+    color: $color-text-inverse;
+  }
+
+  &.default {
+    background-color: $color-bg-page;
+    color: $color-text-secondary;
+    border: 1rpx solid $color-border;
+  }
+
+  &.danger {
+    background-color: $color-danger-light;
+    color: $color-danger;
+  }
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.placeholderWrap {
+  padding: $spacing-xxl $spacing-lg;
+  text-align: center;
+}
+
+.placeholderIcon {
+  font-size: 120rpx;
+  line-height: 1;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.placeholderText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.placeholderDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

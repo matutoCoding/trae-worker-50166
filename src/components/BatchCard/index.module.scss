@@ -1,0 +1,101 @@
+@use '@/styles/variables.scss' as *;
+
+.batchCard {
+  @include card-base;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+.cardHeader {
+  @include flex-between;
+  margin-bottom: $spacing-md;
+}
+
+.batchNumber {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1rpx;
+}
+
+.cardBody {
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-border-light;
+}
+
+.infoRow {
+  display: flex;
+  margin-bottom: $spacing-md;
+}
+
+.infoItem {
+  flex: 1;
+}
+
+.infoLabel {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.infoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+
+  &.highlight {
+    font-size: $font-size-md;
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.bloodTypes {
+  display: flex;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-sm $spacing-xs;
+  margin-bottom: $spacing-md;
+}
+
+.bloodTypeItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bloodType {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-secondary;
+  line-height: 1.2;
+}
+
+.bloodCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 2rpx;
+}
+
+.expiryRow {
+  @include flex-between;
+}
+
+.expiryLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.expiryDate {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}

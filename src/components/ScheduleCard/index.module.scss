@@ -1,0 +1,112 @@
+@use '@/styles/variables.scss' as *;
+
+.scheduleCard {
+  @include card-base;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+.cardHeader {
+  @include flex-between;
+  margin-bottom: $spacing-md;
+}
+
+.stationInfo {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.stationName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.mergedBadge {
+  margin-left: $spacing-sm;
+  background: linear-gradient(135deg, $color-secondary 0%, $color-secondary-dark 100%);
+  padding: 2rpx $spacing-sm;
+  border-radius: $radius-xs;
+}
+
+.mergedText {
+  font-size: $font-size-xs;
+  color: $color-text-inverse;
+  font-weight: $font-weight-medium;
+}
+
+.cardBody {
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-border-light;
+}
+
+.groupRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.groupLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.groupName {
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  @include text-ellipsis;
+  flex: 1;
+}
+
+.timeRow {
+  margin-bottom: $spacing-md;
+}
+
+.statsRow {
+  display: flex;
+  align-items: center;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.statItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  line-height: 1.2;
+
+  &.arrow {
+    color: $color-primary;
+    font-size: $font-size-xl;
+  }
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+}
+
+.statDivider {
+  width: 1rpx;
+  height: 48rpx;
+  background-color: $color-border;
+  flex-shrink: 0;
+}

@@ -1,0 +1,184 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: calc(#{$spacing-xxl} + env(safe-area-inset-bottom));
+}
+
+.content {
+  padding: $spacing-lg $page-padding;
+}
+
+.formCard {
+  @include card-base;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.formItem {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.formLabel {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+  font-weight: $font-weight-medium;
+}
+
+.required {
+  color: $color-danger;
+  margin-right: 4rpx;
+}
+
+.formInput {
+  width: 100%;
+  height: 80rpx;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: 0 $spacing-md;
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  box-sizing: border-box;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &:focus {
+    border-color: $color-primary;
+    background-color: $color-bg-card;
+  }
+}
+
+.formTextarea {
+  width: 100%;
+  min-height: 160rpx;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  box-sizing: border-box;
+  line-height: 1.6;
+}
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.timeInput {
+  flex: 1;
+  height: 80rpx;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: 0 $spacing-md;
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.timeSep {
+  font-size: $font-size-lg;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-semibold;
+}
+
+.selector {
+  height: 80rpx;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  padding: 0 $spacing-md;
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &.placeholder {
+    color: $color-text-placeholder;
+  }
+}
+
+.selectorArrow {
+  color: $color-text-tertiary;
+  font-size: $font-size-base;
+}
+
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  display: flex;
+  gap: $spacing-md;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.actionBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &.primary {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+    color: $color-text-inverse;
+  }
+
+  &.default {
+    background-color: $color-bg-page;
+    color: $color-text-secondary;
+    border: 1rpx solid $color-border;
+  }
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.placeholderWrap {
+  padding: $spacing-xxl $spacing-lg;
+  text-align: center;
+}
+
+.placeholderIcon {
+  font-size: 120rpx;
+  line-height: 1;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.placeholderText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.placeholderDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

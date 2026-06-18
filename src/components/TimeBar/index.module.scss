@@ -1,0 +1,65 @@
+@use '@/styles/variables.scss' as *;
+
+.timeBar {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-sm;
+  transition: all $transition-base;
+  border-left-width: 6rpx;
+  border-left-style: solid;
+  min-width: 200rpx;
+
+  &:active {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+
+  &.occupied {
+    background-color: rgba($color-occupancy-occupied, 0.08);
+    border-left-color: $color-occupancy-occupied;
+    color: $color-occupancy-occupied;
+  }
+
+  &.free {
+    background-color: rgba($color-occupancy-free, 0.08);
+    border-left-color: $color-occupancy-free;
+    color: $color-occupancy-free;
+  }
+
+  &.partial {
+    background-color: rgba($color-occupancy-partial, 0.08);
+    border-left-color: $color-occupancy-partial;
+    color: $color-occupancy-partial;
+  }
+
+  &.cancelled {
+    background-color: $color-bg-hover;
+    border-left-color: $color-occupancy-cancelled;
+    color: $color-text-tertiary;
+    text-decoration: line-through;
+  }
+}
+
+.timeRange {
+  display: inline-flex;
+  align-items: center;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+}
+
+.time {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.dash {
+  margin: 0 6rpx;
+  font-size: inherit;
+}
+
+.label {
+  margin-left: $spacing-sm;
+  font-size: $font-size-xs;
+  opacity: 0.85;
+}
